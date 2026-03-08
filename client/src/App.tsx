@@ -105,7 +105,7 @@ function Landing({ onLogin }: { onLogin: () => void }) {
       {/* Hero */}
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "80px 48px 60px", position: "relative", zIndex: 1 }}>
         <div className="fade" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 20, padding: "6px 16px", fontSize: 12, color: "#f59e0b", marginBottom: 32, fontFamily: "monospace" }}>
-          <span style={{ animation: "blink 1.5s infinite" }}>●</span> BOT ACTIF · 847 TRADES · +23.4% AVG ANNUEL
+          <span style={{ animation: "blink 1.5s infinite" }}>●</span> PAPER TRADING · SCORE 6 FACTEURS · SECTEUR DÉFENSE
         </div>
 
         <h1 style={{ fontSize: 72, fontWeight: 800, lineHeight: 1, letterSpacing: -3, marginBottom: 24 }}>
@@ -141,10 +141,10 @@ function Landing({ onLogin }: { onLogin: () => void }) {
       {/* Stats bar */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", borderBottom: "1px solid rgba(255,255,255,0.05)", padding: "32px 48px", display: "grid", gridTemplateColumns: "repeat(4,1fr)", maxWidth: 1100, margin: "0 auto" }}>
         {[
-          { label: "Win rate", value: "68.4%", sub: "Sur 847 trades" },
-          { label: "Rendement moyen", value: "+23.4%", sub: "Par an (live)" },
-          { label: "Score max = 6/6", value: "92%", sub: "De trades gagnants" },
-          { label: "Drawdown max", value: "-8.2%", sub: "Contrôle du risque" },
+          { label: "Scoring", value: "6/6", sub: "Facteurs techniques" },
+          { label: "Secteurs", value: "5", sub: "Défense, Aéro, Cyber..." },
+          { label: "Broker", value: "Alpaca", sub: "Commission $0" },
+          { label: "Essai gratuit", value: "7 jours", sub: "Sans engagement" },
         ].map(s => (
           <div key={s.label} style={{ padding: "0 32px", borderRight: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ fontSize: 36, fontWeight: 800, color: "#f59e0b", letterSpacing: -1 }}>{s.value}</div>
@@ -448,6 +448,15 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
       {/* Main */}
       <div style={{ flex: 1, padding: 32, overflowY: "auto" }}>
+
+        {/* ⚠️ SIMULATION DISCLAIMER (CRITIQUE 2) */}
+        <div style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)", borderRadius: 10, padding: "12px 20px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12, fontSize: 13 }}>
+          <span style={{ fontSize: 18 }}>⚠️</span>
+          <div>
+            <div style={{ fontWeight: 700, color: "#f59e0b" }}>Mode simulation</div>
+            <div style={{ color: "#94a3b8", fontSize: 12 }}>Le moteur de trading est en cours d'intégration. Les données affichées proviennent de votre compte Alpaca (paper ou live) mais aucun trade automatique n'est exécuté pour le moment.</div>
+          </div>
+        </div>
 
         {/* OVERVIEW */}
         {tab === "overview" && (

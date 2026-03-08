@@ -104,3 +104,14 @@ export const watchlist = pgTable("watchlist", {
   sector: varchar("sector", { length: 50 }),
   addedAt: timestamp("added_at").defaultNow().notNull(),
 });
+
+// ── AUDIT LOG (CRITIQUE 3: traçabilité de toutes les opérations) ──
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  action: varchar("action", { length: 100 }).notNull(),
+  details: jsonb("details"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});

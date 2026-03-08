@@ -4,29 +4,49 @@ import { db } from "../db/index.js";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { z } from "zod";
 import type { Request, Response } from "express";
+
+// Input validation schemas (CRITIQUE 3)
+const magicLinkSchema = z.object({
+  email: z.string().email("Email invalide").max(320),
+});
+const verifySchema = z.object({
+  token: z.string().min(1).max(256),
+  email: z.string().email().max(320),
+});
 
 export const authRouter = Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
-const JWT_SECRET = process.env.JWT_SECRET || "wolf-secret-change-in-prod";
+
+// JWT_SECRET: JAMAIS de fallback hardcodé (CRITIQUE 1)
+// Le serveur refuse de démarrer si absent (voir index.ts validateStartup)
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error("[SECURITY] JWT_SECRET manquant ou trop court");
+  }
+  return secret;
+}
 
 // ── MIDDLEWARE ─────────────────────────────────────────────────
 export function verifyToken(req: any, res: Response, next: any) {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Token requis" });
   try {
-    req.user = jwt.verify(token, JWT_SECRET) as any;
+    req.user = jwt.verify(token, getJwtSecret()) as any;
     next();
   } catch {
-    return res.status(401).json({ error: "Token invalide" });
+    return res.status(401).json({ error: "Token invalide ou expiré" });
   }
 }
 
 // ── POST /api/auth/magic-link ──────────────────────────────────
 authRouter.post("/magic-link", async (req: Request, res: Response) => {
   try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: "Email requis" });
+    const parsed = magicLinkSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.errors[0]?.message || "Email invalide" });
+    const { email } = parsed.data;
 
     const token = crypto.randomBytes(32).toString("hex");
     const expires = new Date(Date.now() + 15 * 60 * 1000); // 15min
@@ -70,8 +90,9 @@ authRouter.post("/magic-link", async (req: Request, res: Response) => {
 // ── POST /api/auth/verify ──────────────────────────────────────
 authRouter.post("/verify", async (req: Request, res: Response) => {
   try {
-    const { token, email } = req.body;
-    if (!token || !email) return res.status(400).json({ error: "Token et email requis" });
+    const parsed = verifySchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: "Token et email requis" });
+    const { token, email } = parsed.data;
 
     const [user] = (await db.execute(sql`
       SELECT * FROM users WHERE email = ${email}
@@ -117,7 +138,7 @@ authRouter.post("/verify", async (req: Request, res: Response) => {
 
     const jwtToken = jwt.sign(
       { userId: user.id, email: user.email },
-      JWT_SECRET,
+      getJwtSecret(),
       { expiresIn: "7d" }
     );
 
