@@ -2,7 +2,7 @@ import { Router } from "express";
 import { sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import { verifyToken } from "./auth.js";
-import Alpaca from "alpaca-trade-api";
+import Alpaca from "@alpacahq/alpaca-trade-api";
 import crypto from "crypto";
 import { z } from "zod";
 import type { Response } from "express";
